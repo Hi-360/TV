@@ -21,7 +21,11 @@
   </div>
   <br>
   <div>
-  🏠广东频道: 广东珠江, 广东体育, 广东新闻, 广东民生, 广东卫视, 大湾区卫视, 广州综合, 广州影视, 广州竞赛, 江门综合, 江门侨乡生活, 佛山综合, 深圳卫视, 汕头综合, 汕头经济, 汕头文旅, 茂名综合, 茂名公共
+  ☘️广东频道: 广东珠江, 广东体育, 广东新闻, 广东民生, 广东卫视, 大湾区卫视, 广州综合, 广州影视, 广州竞赛, 江门综合, 江门侨乡生活, 佛山综合, 深圳卫视, 汕头综合, 汕头经济, 汕头文旅, 茂名综合, 茂名公共
+  </div>
+  <br>
+  <div>
+  ☘️各省份地方台
   </div>
   <br>
   <div>
@@ -152,23 +156,29 @@ pipenv run ui
 建议都试用一次，选择自己合适的版本
 
 1. 拉取镜像：
+
 - driver：
+
 ```bash
 docker pull guovern/tv-driver:latest
 ```
 
 - requests：
+
 ```bash
 docker pull guovern/tv-requests:latest
 ```
 
 2. 运行容器：
+
 - driver：
+
 ```bash
 docker run -d -p 8000:8000 guovern/tv-driver
 ```
 
 - requests：
+
 ```bash
 docker run -d -p 8000:8000 guovern/tv-requests
 ```
@@ -176,18 +186,22 @@ docker run -d -p 8000:8000 guovern/tv-requests
 卷挂载参数（可选）：
 实现宿主机文件与容器文件同步，修改模板、配置、获取更新结果文件可直接在宿主机文件夹下操作
 
-以宿主机路径/etc/docker为例：
+以宿主机路径/etc/docker 为例：
+
 - driver：
+
 ```bash
 docker run -v /etc/docker/config:/tv-driver/config -v /etc/docker/output:/tv-driver/output -d -p 8000:8000 guovern/tv-driver
 ```
 
 - requests：
+
 ```bash
 docker run -v /etc/docker/config:/tv-requests/config -v /etc/docker/output:/tv-requests/output -d -p 8000:8000 guovern/tv-requests
 ```
 
 3. 更新结果：
+
 - 接口地址：ip:8000
 - 接口详情：ip:8000/result
 - 测速日志：ip:8000/log
@@ -196,18 +210,24 @@ docker run -v /etc/docker/config:/tv-requests/config -v /etc/docker/output:/tv-r
 
 [更新日志](./CHANGELOG.md)
 
-## ⚖️ 许可证
-
-[MIT](./LICENSE) License &copy; 2024-PRESENT [Govin](https://github.com/guovin)
-
 ## 💰️ 赞赏
 
-<div>请我喝杯咖啡☕️吧~</div>
+<div>开发维护不易，请我喝杯咖啡☕️吧~</div>
 
 | 支付宝                                    | 微信                                        |
 | ----------------------------------------- | ------------------------------------------- |
 | ![支付宝扫码](./static/images/alipay.jpg) | ![微信扫码](./static/images/appreciate.jpg) |
 
+## 👀 关注
+
+微信公众号搜索 Govin，或扫码：
+
+![微信公众号](./static/images/qrcode.jpg)
+
 ## 📣 免责声明
 
 本项目仅供学习交流用途，接口数据均来源于网络，如有侵权，请联系删除
+
+## ⚖️ 许可证
+
+[MIT](./LICENSE) License &copy; 2024-PRESENT [Govin](https://github.com/guovin)

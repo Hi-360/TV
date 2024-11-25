@@ -1,5 +1,6 @@
 import asyncio
 from utils.config import config
+import utils.constants as constants
 from utils.channel import (
     get_channel_items,
     append_total_data,
@@ -56,8 +57,11 @@ def show_log():
     user_log_file = "output/" + (
         "user_result.log" if os.path.exists("config/user_config.ini") else "result.log"
     )
-    with open(user_log_file, "r", encoding="utf-8") as file:
-        content = file.read()
+    if os.path.exists(user_log_file):
+        with open(user_log_file, "r", encoding="utf-8") as file:
+            content = file.read()
+    else:
+        content = constants.waiting_tip
     return render_template_string(
         "<head><link rel='icon' href='{{ url_for('static', filename='images/favicon.ico') }}' type='image/x-icon'></head><pre>{{ content }}</pre>",
         content=content,
@@ -71,7 +75,7 @@ class UpdateSource:
         self.tasks = []
         self.channel_items = {}
         self.hotel_fofa_result = {}
-        self.hotel_tonkiang_result = {}
+        self.hotel_foodie_result = {}
         self.multicast_result = {}
         self.subscribe_result = {}
         self.online_search_result = {}
@@ -84,7 +88,7 @@ class UpdateSource:
         tasks_config = [
             ("hotel_fofa", get_channels_by_fofa, "hotel_fofa_result"),
             ("multicast", get_channels_by_multicast, "multicast_result"),
-            ("hotel_tonkiang", get_channels_by_hotel, "hotel_tonkiang_result"),
+            ("hotel_foodie", get_channels_by_hotel, "hotel_foodie_result"),
             ("subscribe", get_channels_by_subscribe_urls, "subscribe_result"),
             (
                 "online_search",
@@ -95,7 +99,7 @@ class UpdateSource:
 
         for setting, task_func, result_attr in tasks_config:
             if (
-                setting == "hotel_tonkiang" or setting == "hotel_fofa"
+                setting == "hotel_foodie" or setting == "hotel_fofa"
             ) and config.open_hotel == False:
                 continue
             if config.open_method[setting]:
@@ -104,7 +108,7 @@ class UpdateSource:
                     task = asyncio.create_task(
                         task_func(subscribe_urls, callback=self.update_progress)
                     )
-                elif setting == "hotel_tonkiang" or setting == "hotel_fofa":
+                elif setting == "hotel_foodie" or setting == "hotel_fofa":
                     task = asyncio.create_task(task_func(callback=self.update_progress))
                 else:
                     task = asyncio.create_task(
@@ -152,7 +156,7 @@ class UpdateSource:
                     self.channel_data,
                     self.hotel_fofa_result,
                     self.multicast_result,
-                    self.hotel_tonkiang_result,
+                    self.hotel_foodie_result,
                     self.subscribe_result,
                     self.online_search_result,
                 )
@@ -204,6 +208,7 @@ class UpdateSource:
                         else "result.log"
                     )
                     update_file(user_log_file, "output/result_new.log", copy=True)
+                    cleanup_logging()
                 convert_to_m3u()
                 total_time = format_interval(time() - main_start_time)
                 print(
@@ -223,12 +228,8 @@ class UpdateSource:
                     True,
                     url=f"{get_ip_address()}" if open_service else None,
                 )
-            if open_service:
-                run_service()
         except asyncio.exceptions.CancelledError:
             print("Update cancelled!")
-        finally:
-            cleanup_logging()
 
     async def start(self, callback=None):
         def default_callback(self, *args, **kwargs):
@@ -254,14 +255,23 @@ def scheduled_task():
 
 
 def run_service():
-    if not os.environ.get("GITHUB_ACTIONS"):
-        ip_address = get_ip_address()
-        print(f"📄 Result detail: {ip_address}/result")
-        print(f"📄 Log detail: {ip_address}/log")
-        print(f"✅ You can use this url to watch IPTV 📺: {ip_address}")
-        app.run(host="0.0.0.0", port=8000)
+    try:
+        if not os.environ.get("GITHUB_ACTIONS"):
+            ip_address = get_ip_address()
+            print(f"📄 Result detail: {ip_address}/result")
+            print(f"📄 Log detail: {ip_address}/log")
+            print(f"✅ You can use this url to watch IPTV 📺: {ip_address}")
+            app.run(host="0.0.0.0", port=8000)
+    except Exception as e:
+        print(f"❌ Service start failed: {e}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 1 or (len(sys.argv) > 1 and sys.argv[1] == "scheduled_task"):
-        scheduled_task()
+    if len(sys.argv) == 1 and config.open_service:
+        loop = asyncio.new_event_loop()
+
+        async def run_service_async():
+            loop.run_in_executor(None, run_service)
+
+        asyncio.run(run_service_async())
+    scheduled_task()
